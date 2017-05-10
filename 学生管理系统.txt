@@ -1,0 +1,1255 @@
+/*
+本程序是把账号密码放在文件zhanghao.txt中保存，可以增加用户，修改密码，所以就需要账号密码节点，存放在文件中
+
+另外，有一个chaoji.txt文件用来存放超级用户的密码，超级用户的权限就是可以增加、修改、删除其他用户，这个超级用户的密码单独保存，提高安全性
+
+
+  本程序的缺点是由于要使用文件，使用单链表，程序比较复杂
+*/
+
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+
+struct  zhanghao
+{
+	char zhanghao[20],mima[20],leixing[20];//leixing数组是存放该账号的类型，本程序中账号的类型有超级用户、管理员、普通用户三种类型，不同的类型权限不同
+	struct zhanghao *next;
+
+};
+typedef struct zhanghao YH; //YH 就是用户节点
+
+
+
+struct student
+{
+	char sno[10];             
+	char name[20];               
+	char sex;               
+	int age;
+	double cscore; 
+	double mscore;                    
+	double escore;
+	double sum;
+	struct student *next;
+};
+typedef struct student NODE;         //声明结构体的同义词
+int total=0;                    //学生数量的统计
+
+
+
+void zhucaidan();
+void chaojicaidan();
+void guanliyuancaidan();
+void putongcaidan();
+void xueshengcaidan();
+void denglu(char zhanghao[],char mima[]);
+int  getzhanghaowenjian(char zhanghao[],char mima[],char leixing[]);
+YH * duwenjian();
+void baocun(YH *head);
+YH* zengjia(YH* head);
+YH* shanchu(YH* head);
+YH *xianshi(YH *head);
+NODE* Create();               
+void Save(NODE *head);          
+NODE * Read();                     
+void View(NODE *head);         
+NODE* Add(NODE *head);          
+NODE* Modify(NODE *head);           
+void Qur(NODE *head);        
+NODE* Del(NODE *head); 
+void statistics(NODE *head);  
+void Sort(NODE *head);
+void Swap(char t1[],char t2[]);
+
+
+void zhucaidan()
+{
+		printf("\n\n***************登录初始界面 ***********\n\n");
+        printf("\t 1. 超级用户登录\n\n");
+        printf("\t 2. 管理员登录 \n\n");
+        printf("\t 3. 教师登录\n\n");
+		printf("\t 4. 学生登录\n\n");
+        printf("\t 0. 退出通讯录系统\n\n");
+	    printf("*****************************************\n\n");
+		printf("\n\n"); 
+		printf("请输入你的选择："); 
+}
+
+void chaojicaidan()
+{
+		printf("\n\n***************超级用户 ***********\n\n");
+		printf("\t 1. 显示已创建的用户\n\n");
+        printf("\t 2. 添加用户\n\n");
+        printf("\t 3. 删除用户\n\n");
+        printf("\t 4. 修改用户\n\n");
+		printf("\t 0. 返回\n\n");
+	    printf("*****************************************\n\n");
+		printf("\n\n"); 
+		printf("请输入你的选择："); 
+	
+}
+
+void guanliyuancaidan()
+{
+		printf("\n\n***************管理员 ***********\n\n");       
+		printf("\t 1. 创建学生信息记录\n\n");
+        printf("\t 2. 显示学生信息 \n\n");
+		printf("\t 3. 修改学生信息 \n\n");
+		printf("\t 4. 增加学生信息 \n\n");
+		printf("\t 5. 删除学生信息 \n\n");
+        printf("\t 0. 返回\n\n");
+	    printf("*****************************************\n\n");
+		printf("\n\n"); 
+		printf("请输入你的选择："); 
+	
+}
+
+void putongcaidan()
+{
+	   	printf("\n\n***************教师用户 ***********\n\n");
+        printf("\t 1. 显示学生信息\n\n");
+      	printf("\t 2. 查找学生信息\n\n");
+		printf("\t 3. 修改学生信息\n\n");
+		printf("\t 4. 排序学生信息\n\n");
+		printf("\t 5. 统计学生信息\n\n");
+		printf("\t 0. 返回\n\n");
+	    printf("*****************************************\n\n");
+		printf("\n\n"); 
+		printf("请输入你的选择："); 
+}
+
+
+void xueshengcaidan()
+{
+	   	printf("\n\n***************学生用户 ***********\n\n");
+        printf("\t 1. 显示学生信息\n\n");
+		printf("\t 0. 返回\n\n");
+	    printf("*****************************************\n\n");
+		printf("\n\n"); 
+		printf("请输入你的选择："); 
+}
+
+void denglu(char zhanghao[],char mima[])
+{
+
+	printf("\n请输入你的帐号：");
+	fflush(stdin);
+	gets(zhanghao);
+	printf("\n请输入你的密码：");
+	fflush(stdin);
+	gets(mima);
+ 
+}
+
+int  getzhanghaowenjian(char zhanghao[],char mima[],char leixing[])
+{
+	FILE *fp;
+	YH *t1,*t2,*head=NULL,*p;
+	int flag=0,i;
+	char  mm[20];
+	if(strcmp(leixing,"超级用户")==0)
+	{
+		if((fp=fopen("chaoji.txt","r"))==0)
+		{
+			printf("\n\t超级账号不存在！！！\n");
+			exit(0);
+		}
+		rewind(fp);	 
+		i=0;
+		while(1)      //读取chaoji.txt中的超级密码
+		{
+			mm[i]=fgetc(fp);
+			if((mm[i]=='\n')||i>=20)
+				break;
+			i++;
+		}
+		mm[i]=0;
+		if(strcmp("administrator",zhanghao)==0&&strcmp(mm,mima)==0&&strcmp("超级用户",leixing)==0)	  
+			flag=1;		
+	}
+	else
+	{
+		if((fp=fopen("zhanghao.txt","r"))==0)
+		{
+			printf("\n\t账号文件不存在！！！\n");
+			exit(0);
+		}
+		rewind(fp);	 
+		t1=(YH *) malloc(sizeof(YH));	
+		head=t2=t1;	
+		while(!feof(fp))	
+		{
+			if(fread(t1,sizeof(YH),1,fp)!=1)	
+				break;  
+			t1->next=(YH *)malloc(sizeof(YH));	
+			t2=t1;     //t2是真正的尾节点
+			t1=t1->next;	//t1向后移一个结点
+		}
+		t2->next=NULL;	
+		fclose(fp);
+		p=head;	
+		while(p!=NULL)
+		{
+			if(strcmp(p->zhanghao,zhanghao)==0&&strcmp(p->mima,mima)==0&&strcmp(p->leixing,leixing)==0)	  
+			{
+				flag=1;	
+				break;
+			}
+			p=p->next;		//p1指针向后移
+		}
+	}
+	return flag;
+}
+
+
+
+
+YH * duwenjian()
+{
+    FILE *fp;	//定义一个文件指针，接收fopen的返回值，用于最后的关闭文件
+    YH *t1,*t2,*head=NULL;
+   
+    if((fp=fopen("zhanghao.txt","r"))==NULL)      //判断文件是否存在
+    {
+        printf("打开zhanghao文件失败！没有该文件\n\n");
+ 		printf("请按任意键返回主菜单\n");
+        getch();
+		return 0;
+     }
+	rewind(fp);	  //这个函数是把一个文件的位置指针从新移至开头，不然的话会出现一个组数据丢失
+    t1=(YH *) malloc(sizeof(YH));	//申请动态空间
+    head=t2=t1;	//把t1赋给头结点
+	
+    while(!feof(fp))	//feof函数的功能是判断这个文件是不是结束了，如果结束了，返回一个非零值，否则返回一个0，
+    {
+        if(fread(t1,sizeof(YH),1,fp)!=1)	//fread函数返回读出数据项的个数
+           break;  //如果没有读取内容，则结束
+	
+        t1->next=(YH *)malloc(sizeof(YH));	//把在申请动态空间的同时，把t1的next指向下一个结点
+        t2=t1;     //t2是真正的尾节点
+		t1=t1->next;	//t1向后移一个结点
+    }
+    t2->next=NULL;	
+	fclose(fp);		//关闭文件
+    return head;	//返回一个头指针，因为在没有创建一个单链表和文件的时候，就是靠这个头指针进行一系列的操作的
+}
+
+
+
+
+
+void baocun(YH *head)								
+{
+	FILE *fp;		//定义一个文件指针，接收fopen的返回值，用于最后的关闭文件		
+    YH* t ;			//定义一个指针，从头到尾遍历一遍单链表，向文件中写入
+    if ((fp=fopen("zhanghao.txt","w"))==NULL)		//打开文件来写入
+    {
+        printf("打开文件失败！\n");
+        getch();     //输入任意键进入下一步
+        exit(0);		//退出
+    }
+    t=head;			//把头指针赋给t，让它从头开始
+    while(t!=NULL)	//只要t指针不为空，即等于链表没有结束
+    {
+       fwrite(t,sizeof(YH),1,fp);	//把链表写入文件中
+       t=t->next;	//指针后移
+    }
+    fclose(fp);		//把文件关闭
+    printf("\n文件保存成功\n");
+	printf("\n请按任意键返回主菜单\n");
+	getch();	
+}
+
+
+
+YH* zengjia(YH* head)
+{
+    char saveflag;		//存盘标志
+	int k=0;
+	int i=0;
+    YH *p1,*p2,*pa;	//pa是用来放添加的信息的，p1，p2是用来临时移动的
+    p1=p2=head;			//先让它们都等于头指针
+    system("cls");	//清屏
+    while(p1->next!=NULL)	//把p1移到尾节点
+        p1=p1->next;
+
+bb2:pa=(YH*)malloc(sizeof(YH));	//申请动态存储空间
+	printf("请输入新的账号:\n");
+	fflush(stdin);
+    scanf("%s",pa->zhanghao);
+   
+
+	p2=head;		//让p2从头开始遍历
+	while(p2!=NULL)		//当p2不为空时
+	{
+		if((strcmp(pa->zhanghao,p2->zhanghao)==0))
+		{
+			free(pa);
+			printf("你重复输入了。\n");
+			goto bb2;
+		}
+		p2=p2->next;
+	}
+	printf("请输入密码:\n");
+	fflush(stdin);
+    scanf("%s",pa->mima);
+	pa->zhanghao[19]=0;
+	pa->mima[19]=0;
+	printf("请输入该账号的类型(管理员-1、教师-2、学生-3):\n");
+	fflush(stdin);
+	scanf("%d",&k);
+	switch(k)
+	{
+	case 1:strcpy(pa->leixing,"管理员");break;
+	case 2:strcpy(pa->leixing,"教师");break;
+	case 3:strcpy(pa->leixing,"学生");break;
+	default:strcpy(pa->leixing,"无");
+	}
+	p1->next=pa;		//尾节点p1的next添加pa
+	pa->next=NULL;
+
+	printf("新添加账号成功,是否存盘?(Y/N)\n");
+	fflush(stdin);
+	scanf("%c",&saveflag);		//存盘？Y or N
+	if(saveflag=='y'||saveflag=='Y')	//当输入y Y的时候
+		baocun(head);		//调用保存函数
+	else
+	{
+		printf("请按任意键返回主菜单\n");
+		getch();	
+	}
+	free(pa);
+    return(head);	
+}
+
+
+
+
+
+YH* shanchu(YH* head)
+{
+	YH *p1,*p2;
+	char save1='a',sc=0;
+	char z[20];
+	p1=p2=head;
+	printf("请输入要删除的账号：\n");
+	scanf("%s",&z);
+	getchar();
+	while(p1!=NULL)
+	{
+		if(strcmp(p1->zhanghao,z)==0)
+		{
+			printf("请确定是否要删除此账号？（y/n）");
+			fflush(stdin);
+			scanf("%c",&sc);
+			if(sc=='y'||sc=='Y')
+			{
+				if(p1==head)
+					head=p1->next;
+				else
+					p2->next=p1->next;
+				printf("该账号已经被删除，是否保存？（y/n）");
+				fflush(stdin);
+				scanf("%c",&save1);
+				if(save1=='y'||save1=='Y')
+					baocun(head);
+				else
+				{
+					printf("请按任意键返回主菜单\n");
+					getch();
+				}
+			}
+			else
+			{
+				printf("请按任意键返回主菜单\n");
+				getch();
+			}
+			break;
+
+		}
+		p2=p1;
+		p1=p1->next;
+	}
+	 if((p1->next)==NULL&&strcmp(z,p1->zhanghao))
+	 {
+			printf("没有找到要删除的账号，请检查你要删除的账号是否正确\n");
+			printf("请按任意键返回主菜单\n");
+			getch();	//按下任意键就进入下一条语句的函数
+	 }
+	 return(head);
+}
+
+
+
+
+YH *xianshi(YH *head)
+{
+	YH *t1=head->next;
+	printf("\n已经创建的账号======用户类型\n");
+	while(t1!=NULL)
+	{
+		printf("%-s             %s\n",t1->zhanghao,t1->leixing);
+		t1=t1->next;
+	}
+	printf("\n\n账号信息显示成功\n");
+	printf("\n按任意键返回！");
+	getch();
+}
+
+
+NODE *Create()
+{
+	FILE *fp;//定义一个文件指针，接收fopen的返回值，用于最后的关闭文件
+	NODE *head,*p1,*tail;
+
+
+	if((fp=fopen("data.txt","r"))==NULL)//如果文件不存在就创建
+	{
+		head=p1=tail=NULL;
+		while(1)
+		{
+			p1=(NODE *)malloc(sizeof(NODE));//给p1分配一个动态存储空间
+			p1->next=NULL;
+            printf("请输入学号(结束输入时，输入*)：\n");
+		    fflush(stdin);
+			scanf("%s",p1->sno);
+			if(strcmp(p1->sno,"*")==0)	//判断输入的是否为*号，是则结束函数
+			{
+				if(total==0)
+				{
+					printf("你输入了0条信息，单链表没有建立...\n");
+					free(p1);	//释放p1空间
+					return (head);//把head返回
+				}
+				else
+				{
+					break;//跳出while循环
+				}
+			}
+			p1->sno[9]=0;
+			fflush(stdin);
+			printf("请输入姓名：\n");
+			scanf("%s",p1->name);
+			p1->name[19]=0;
+
+			fflush(stdin);
+			printf("请输入性别：\n");
+			scanf("%c",&p1->sex);
+
+			fflush(stdin);
+			printf("请输入年龄：\n");
+			scanf("%d",&p1->age);
+
+			fflush(stdin);
+			printf("请输入c语言成绩：\n");
+			scanf("%lf",&p1->cscore);
+
+			fflush(stdin);
+			printf("请输入数学成绩：\n");
+			scanf("%lf",&p1->mscore);
+
+			fflush(stdin);
+			printf("请输入英语成绩：\n");
+			scanf("%lf",&p1->escore);
+
+			p1->sum=p1->cscore+p1->mscore+p1->escore;
+			
+		    if(head==NULL)	//这是第一次进来的时候，head为空
+			{
+				head=p1;//head和p2都为p1
+				tail=p1;
+			}
+			else
+			{
+				tail->next=p1;	//第二次以后的执行命令，目的就是p2向后移，而head的位置不变
+				tail=p1;
+			}
+		total++;			//录入一个后，总数就加1
+		}
+		tail->next=NULL;					//尾指针域赋值为NULL
+		free(p1);
+		printf("\n创建学生信息成功，共有%d条信息\n",total);
+		getchar();	//这个getchar是吸收回车键的
+		Save(head);
+	}
+	else
+	{
+		printf("\n\t学生信息已经存在，不能重复创建！\n\n按任意键返回主菜单\n\n");
+		getch();  //输入任意键进入下一步
+	}
+	return head;	//返回头指针	
+}
+
+
+void Save(NODE *head)								
+{
+	FILE *fp;		//定义一个文件指针，接收fopen的返回值，用于最后的关闭文件		
+    NODE* t;			//定义一个指针，从头到尾遍历一遍单链表，向文件中写入
+    if ((fp=fopen("data.txt","w"))==NULL)		//打开文件来写入
+    {
+        printf("打开文件失败！\n");
+        getch();     //输入任意键进入下一步
+        exit(0);		//退出
+    }
+    t=head;			//把头指针赋给t，让它从头开始
+    while(t!=NULL)	//只要t指针不为空，即等于链表没有结束
+    {
+       fwrite(t,sizeof(NODE),1,fp);	//把链表写入文件中
+       t=t->next;	//指针后移
+    }
+    fclose(fp);		//把文件关闭
+    printf("\n文件保存成功\n");
+	printf("\n请按任意键返回主菜单\n");
+	getch();	
+}
+
+
+NODE * Read()
+{
+    FILE *fp;	//定义一个文件指针，接收fopen的返回值，用于最后的关闭文件
+    NODE *t1,*t2,*head=NULL;
+   
+    if((fp=fopen("data.txt","r"))==NULL)      //判断文件是否存在
+    {
+        printf("打开文件失败！没有该文件\n\n");
+ 		printf("请按任意键返回主菜单\n");
+        getch();
+		return 0;
+     }
+	rewind(fp);	  //这个函数是把一个文件的位置指针从新移至开头，不然的话会出现一个组数据丢失
+    t1=(NODE *) malloc(sizeof(NODE));	//申请动态空间
+    head=t2=t1;	//把t1赋给头结点
+	
+    while(!feof(fp))	//feof函数的功能是判断这个文件是不是结束了，如果结束了，返回一个非零值，否则返回一个0，
+    {
+        if(fread(t1,sizeof(NODE),1,fp)!=1)	//fread函数返回读出数据项的个数
+           break;  //如果没有读取内容，则结束
+	
+        t1->next=(NODE *)malloc(sizeof(NODE));	//在申请动态空间的同时，把t1的next指向下一个结点
+        t2=t1;     //t2是真正的尾节点
+		t1=t1->next;	//t1向后移一个结点
+    }
+    t2->next=NULL;	
+	fclose(fp);		//关闭文件
+    return head;	//返回一个头指针，因为在没有创建一个单链表和文件的时候，就是靠这个头指针进行一系列的操作的
+}
+
+
+
+void View(NODE * head)
+{
+	NODE *t1=head;
+	printf("\n 学号===姓名====性别====年龄====C语言成绩====数学成绩====英语成绩===总分\n");
+	while(t1!=NULL)
+	{
+		printf("%-s     %-s     %-c     %-d      %-.1f       %-.1f       %-.1f       %-.2f\n",
+			               t1->sno,t1->name,t1->sex,t1->age,t1->cscore,t1->mscore,t1->escore,t1->sum);
+		t1=t1->next;
+	}
+	printf("\n\n学生信息显示成功\n");
+	printf("\n请按任意键返回主菜单\n");
+	getch();
+}
+
+
+NODE *Add(NODE *head)
+{
+	char saveflag;
+	int i=0;
+	NODE *p1,*p2,*p;	//p是用来放添加的信息的，p1，p2是用来临时移动的
+	p1=p2=head;		//先让它们都等于头指针
+	system("cls");	//清屏
+	while(p1->next!=NULL)	//把p1移到尾节点
+		p1=p1->next;
+
+hpd:p=(NODE *)malloc(sizeof(NODE));	//申请动态存储空间
+	printf("\n请输入学生学号:\n");
+	fflush(stdin);
+	scanf("%s",p->sno);
+
+	p2=head;		//让p2从头开始遍历
+	while(p2!=NULL)	//当p2不为空时
+	{
+		if(strcmp(p->sno,p2->sno)==0)
+		{
+			free(p);
+			printf("你重复输入了。\n");
+			goto hpd;
+		}
+		p2=p2->next;
+	}
+	p->sno[9]=0;
+	fflush(stdin);
+	printf("请输入姓名：\n");
+	scanf("%s",p->name);
+	p->name[19]=0;
+
+	fflush(stdin);
+	printf("请输入性别：\n");
+	scanf("%c",&p->sex);
+	p1->next=p;		//尾节点p1的next添加p
+	p->next=NULL;
+
+	fflush(stdin);	
+	printf("请输入年龄：\n");
+	scanf("%d",&p->age);
+	p1->next=p;		//尾节点p1的next添加p
+	p->next=NULL;
+
+	fflush(stdin);
+	printf("请输入C语言成绩：\n");
+	scanf("%lf",&p->cscore);
+	p1->next=p;		//尾节点p1的next添加p
+	p->next=NULL;
+
+	fflush(stdin);
+	printf("请输入数学成绩：\n");
+	scanf("%lf",&p->mscore);
+	p1->next=p;		//尾节点p1的next添加p
+	p->next=NULL;
+
+	fflush(stdin);
+	printf("请输入英语成绩：\n");
+	scanf("%lf",&p->escore);
+
+	p->sum=p->cscore+p->mscore+p->escore;
+
+
+	p1->next=p;		//尾节点p1的next添加p
+	p->next=NULL;
+
+	printf("新增加学生信息成功，是否保存?(y/n)\n");
+	fflush(stdin);
+	scanf("%c",&saveflag);	//存盘？Y or N
+	if(saveflag=='y'||saveflag=='Y')	//当输入y Y的时候
+		Save(head);	//调用保存函数
+	else
+	{
+		printf("情按任意键返回主菜单\n");
+		getch();
+	}
+	free(p);
+	return(head);
+}
+
+
+
+NODE* Modify(NODE *head)//修改有误
+{
+
+	NODE *p1;
+	char saveflag1;//savefalg是用来提示是否保存
+	char cun[20],s[10];
+	char se;            
+	int a;
+	double c,m,e;
+	int flag=0,k;     //确认是否修改标志
+	system("cls"); //清屏
+    p1=head; 
+    printf("\n请输入你要修改的学生学号：\n");
+	scanf("%s",s);
+	fflush(stdin);
+    while(p1!=NULL)
+	{	
+		if(strcmp(p1->sno,s)==0)
+		{
+			flag=1;
+			printf("\n学号========姓名=====性别======年龄=======C语言成绩======数学成绩======英语成绩=======总分\n");
+			printf("%-s         %-s       %-c      %-d        %-.1f           %-.1f        %-.1f           %-.2f\n",
+			               p1->sno,p1->name,p1->sex,p1->age,p1->cscore,p1->mscore,p1->escore,p1->sum);
+		    printf("请问是否修改学生的信息\n");
+		    fflush(stdin);
+	    	scanf("%s",&saveflag1);
+	    	if(saveflag1=='y'||saveflag1=='Y')
+		    	goto bb3;
+       bb3: printf("\n请输入还要修改的类别：学号-1 姓名-2 性别-3 年龄-4 C语言成绩-5 数学成绩-6 英语成绩-7 返回主菜单—8\n");
+	    	fflush(stdin);		
+	       	scanf("%d",&k);		
+	     	switch(k)		
+			{		
+	    	case 1:			
+		    	printf("\n请输入修改后的学号\n");            
+		     	fflush(stdin);
+		    	scanf("%s",s);			
+		    	p1->sno[9]=0;			
+		    	strcpy(p1->sno,s);goto bb3;break;		
+	    	case 2:		
+		    	printf("\n请输入修改后的姓名\n");         
+		    	fflush(stdin);		
+		    	scanf("%s",cun);		
+		    	p1->name[19]=0;		
+		    	strcpy(p1->name,cun);goto bb3;break;		
+	    	case 3: 
+			    printf("\n请输入修改后的性别\n");            
+		    	fflush(stdin);
+		    	scanf("%c",&se);            			
+		       p1->sex=se;goto bb3;break;  
+	    	case 4:
+		    	printf("\n请输入修改后的年龄\n");            
+		    	fflush(stdin);
+		    	scanf("%d",&a);            			
+		     	p1->age=a;goto bb3;break;  
+	    	case 5:
+		    	printf("\n请输入修改后的c语言成绩\n");             
+		    	fflush(stdin);			
+		    	scanf("%lf",&c);			
+		    	p1->cscore=c;
+		    	p1->sum=p1->cscore+p1->mscore+p1->escore;
+		     	goto bb3;break;
+	    	case 6: 
+		    	printf("\n请输入修改后的数学成绩\n");            
+		    	fflush(stdin);			
+		      	scanf("%lf",&m);			
+		    	p1->mscore=m;
+		    	p1->sum=p1->cscore+p1->mscore+p1->escore;
+		    	goto bb3;break;           
+	    	case 7:
+		    	printf("\n请输入修改后的英语成绩\n");             
+		    	fflush(stdin);			
+			    scanf("%lf",&e);			
+		    	p1->escore=e;
+		    	p1->sum=p1->cscore+p1->mscore+p1->escore;
+		    	goto bb3;break;		
+	    	case 8:
+		    	printf("该学生记录已修改成功\n");
+		    	printf("学生信息已经修改成功,是否进行保存? (Y/N)\n");			 
+		    	fflush(stdin);			 
+		    	scanf("%c",&saveflag1);	
+		  	    if(saveflag1=='y'||saveflag1=='Y')	//当输入是的时候				   
+			    	Save(head);			//调用保存函数
+		    	else			
+				{				 
+			    	printf("请按任意键返回主菜单\n");
+			     	getch();	
+				}			  
+		    	return(head);		
+		    default:
+				{			
+		      		printf("\n输入错误，请再次输入");			
+			    	goto bb3;
+				}		
+			} 
+		
+		}
+		p1=p1->next;  //p1指针向后移
+	}
+	if(flag==0)	//没有这个名字的人，返回主菜单	
+    {     
+	    printf("\n没有找到要修改的学生记录，请按任意键返回主菜单!\n");
+	    getch();	//按下任意键就进入下一条语句的函数   
+    }
+    return(head);
+}
+
+
+
+
+void Qur(NODE *head)
+{
+    NODE *p; 
+	int h,coun;//h保存子菜单选择项   coun指查找样本的数量
+	int flag;     //flag是用来判断是否找到
+
+	char n[20],s[10];  // 
+	char searchflag='y'; //循环用
+    p=head;
+	
+bb4:printf("\n****************菜单************\n");
+	printf("\n1.  按学号查询\n\n2. 按姓名查询\n\n3. 返回主菜单");
+    printf("\n*******************************************\n");
+	fflush(stdin);
+	scanf("%d",&h);
+	switch(h)
+	{
+		case 1:
+			 while(searchflag=='y'||searchflag=='Y')
+			 {
+					coun=0;
+                    flag=0;
+					printf("请输入学号:\n");		    
+					fflush(stdin);			
+					scanf("%s",s);
+						
+					while(p!=NULL)
+					{
+						if(strcmp(p->sno,s)==0)
+						{
+							coun++;
+							if(coun==1)			           
+		                    printf("\n 学号========姓名=====性别======年龄=======C语言成绩======数学成绩======英语成绩=======总分\n");
+		                    printf("   %-s         %-s       %-c      %-d         %-.1f            %-.1f         %-.1f           %-.2f\n",
+			                              p->sno,p->name,p->sex,p->age,p->cscore,p->mscore,p->escore,p->sum);
+							flag=1;   //flag赋值为1，表示为已经查到了数据了
+						}
+						p=p->next;		//p1指针向后移
+					}
+              if(flag==0)		//表示没有找到相关数据
+				{
+					printf("\n未能找到符合条件的记录\n");
+				}
+			  else
+				printf("\n已经找到%d个学生样本",coun);
+              printf("\n查找完毕，是否需要重新查询？ (Y/N)\n");
+			  fflush(stdin);
+			  scanf("%c",&searchflag);//是否继续查询（Y/N）
+			  if(searchflag=='y'||searchflag=='Y')
+				  goto bb4;
+			  else
+				  return;
+			 }
+			 break;
+		case 2:
+			while(searchflag=='y'||searchflag=='Y')
+			 {
+					coun=0;
+                    flag=0;		
+					printf("请输入姓名:\n");		    
+					fflush(stdin);
+					scanf("%s",&n);
+					p=head;
+					while(p!=NULL)
+					{
+						if(strcmp(p->name,n)==0)
+						{
+							coun++;
+							if(coun==1)       
+						    printf("\n 学号========姓名=====性别======年龄=======C语言成绩======数学成绩======英语成绩=======总分\n");
+		                    printf("   %-s         %-s       %-c      %-d         %-.1f            %-.1f         %-.1f           %-.2f\n",
+			                              p->sno,p->name,p->sex,p->age,p->cscore,p->mscore,p->escore,p->sum);
+						    flag=1;   //flag赋值为1，表示为已经查到了数据了
+						}              
+						p=p->next;		//p指针向后移
+					}
+              if(flag==0)		//表示没有找到相关数据
+				{
+					printf("\n未能找到符合条件的记录\n");
+				}
+				else
+					printf("\n已经找到%d个学生记录",coun);
+                printf("\n查找完毕，是否需要重新查询？ (Y/N)\n");
+				fflush(stdin);
+				scanf("%c",&searchflag);		//是否继续查询（Y/N）
+				if(searchflag=='y'||searchflag=='Y')
+					goto bb4;
+				else
+					return;
+
+			 }
+			 break;
+
+		    case 3:	return;
+            default :printf("你输入错了，请你输入任意键返回主菜单...\n");
+			     getch();
+      }
+}
+
+
+
+
+NODE *Del(NODE *head)
+{
+	NODE *p1,*p2;//p1用来浏览整个单链表，p2用来接收下一个指针,p3用来存储ID的
+	char save1='a',sc;//save1是用来保存更改过后的信息，sc是用来删除
+	char s[10];//存放删除书名 
+	p1=p2=head;
+	printf("请输入要删除的学生学号：\n");
+	scanf("%s",&s);
+	getchar();
+    while(p1!=NULL)
+	{
+		if(strcmp(p1->sno,s)==0)  
+		{ 
+			printf("\n请输入你要删除的学生名字:\n");
+		printf("\n 学号========姓名=====性别======年龄=======C语言成绩======数学成绩======英语成绩=======总分\n");
+		                    printf("   %-s         %-s       %-c      %-d         %-.1f            %-.1f         %-.1f           %-.2f\n",
+			                              p1->sno,p1->name,p1->sex,p1->age,p1->cscore,p1->mscore,p1->escore,p1->sum);
+	        printf("请确定是否要删除该记录？y/n\n");
+			fflush(stdin);
+			scanf("%c",&sc);
+			if(sc=='y'||sc=='Y')
+			{
+				if(p1==head)
+					head=p1->next;
+				else
+					p2->next=p1->next;
+				printf("该学生信息记录已经删除，是否保存？y/n\n");
+				fflush(stdin);
+				scanf("%c",&save1);
+				if(save1=='y'||save1=='Y')
+					Save(head);
+				else
+				{
+					printf("请按任意键返回主菜单\n");
+					getch();
+				}
+			}
+			else
+			{
+				printf("请按任意键返回主菜单\n");
+				getch();
+			}
+			break;
+		}
+		p2=p1;
+		p1=p1->next;
+	}
+    if((p1->next)==NULL&&strcmp(s,p1->sno))
+	{
+			printf("没有找到要删除的学生记录，请检查你要删除的姓名是否正确\n");
+			printf("请按任意键返回主菜单\n");
+			getch();	//按下任意键就进入下一条语句的函数
+	}
+	return head;
+}
+
+
+
+void statistics(NODE *head)//统计
+{
+	NODE *p;
+	int i,j,k;
+	int l;
+	char searchflag='y';
+	i=j=k=0;
+bb5:printf("\n****************菜单************\n");
+	printf("\n1.  总成绩统计\n\n2. 单科C语言成绩统计\n\n3.单科数学成绩统计\n\n4.单科英语成绩统计\n\n5. 返回主菜单");
+    printf("\n*******************************************\n");
+	fflush(stdin);
+	scanf("%d",&l);
+
+	switch(l)
+	{		
+	case 1:
+		p=head;
+		while(p!=NULL)
+		{
+			if(p->sum<=180)
+				k++;
+		    else if(p->sum<=250)		  
+				j++;	   
+			else		    
+				i++;
+			p=p->next;
+		}
+			printf("\n总分成绩为优秀的学生人数为：%d\n",i);	    
+			printf("\n总分成绩为中等的学生人数为：%d\n",j);	  
+			printf("\n总分成绩为差的学生人数为：%d\n",k);		
+			printf("\n统计完成，是否进行其他类型统计？ (Y/N)\n");
+			i=j=k=0;
+			fflush(stdin);	   
+			scanf("%c",&searchflag);	    
+			if(searchflag=='y'||searchflag=='Y')		   
+				goto bb5;	
+			else		
+				return;
+		break;
+	case 2:	
+		p=head;
+		while(p!=NULL)
+		{
+			if(p->cscore<=60)
+				k++;
+		    else if(p->cscore<=85)		  
+				j++;	   
+			else		    
+				i++;
+			p=p->next;
+		}
+    	printf("\nC语言成绩为优秀的学生人数为：%d\n",i);
+    	printf("\nC语言成绩为中等的学生人数为：%d\n",j);
+    	printf("\nC语言成绩为差的学生人数为：%d\n",k);
+		printf("\n统计完成，是否进行其他类型统计？ (Y/N)\n");
+		i=j=k=0;
+	    fflush(stdin);
+	    scanf("%c",&searchflag);
+	    if(searchflag=='y'||searchflag=='Y')
+		     goto bb5;
+		else
+			 return;
+		break;
+	
+
+   
+	case 3:	
+		p=head;
+		while(p!=NULL)
+		{
+			if(p->mscore<=60)
+				k++;
+		    else if(p->mscore<=85)		  
+				j++;	   
+			else		    
+				i++;
+			p=p->next;
+		}
+    	printf("\n数学成绩为优秀的学生人数为：%d\n",i);
+    	printf("\n数学成绩为中等的学生人数为：%d\n",j);
+    	printf("\n数学成绩为差的学生人数为：%d\n",k);
+		printf("\n统计完成，是否进行其他类型统计？ (Y/N)\n");
+		i=j=k=0;
+	    fflush(stdin);
+	    scanf("%c",&searchflag);
+	    if(searchflag=='y'||searchflag=='Y')
+		     goto bb5;
+		else
+			 return;
+		break;
+
+
+	case 4:	
+		p=head;
+		while(p!=NULL)
+		{
+			if(p->escore<=60)
+				k++;
+		    else if(p->escore<=85)		  
+				j++;	   
+			else		    
+				i++;
+			p=p->next;
+		}
+    	printf("\n英语成绩为优秀的学生人数为：%d\n",i);
+    	printf("\n英语成绩为中等的学生人数为：%d\n",j);
+    	printf("\n英语成绩为差的学生人数为：%d\n",k);
+		printf("\n统计完成，是否进行其他类型统计？ (Y/N)\n");
+	    fflush(stdin);
+	    scanf("%c",&searchflag);
+	    if(searchflag=='y'||searchflag=='Y')
+		     goto bb5;
+		else
+			 return;
+		break;
+		
+	case 5:return;
+         default :printf("输入错误！按任意键返回主菜单...\n");
+		 getch();
+	}
+	
+}
+
+
+
+
+void Swap(char t1[],char t2[])
+{
+	char t[20]={0};
+	strcpy(t,t1);
+	strcpy(t1,t2);
+	strcpy(t2,t);
+}
+
+
+void Sort(NODE *head)
+{
+	NODE  *p1,*p2;
+	double c,m,e,s;
+	int a;
+	char se;
+	char saveflag='y';
+	p2=NULL;
+	while( head != p2)
+	{
+		p1 = head;
+		while( p1->next!= p2 )
+		{  
+			if(p1->sum>p1->next->sum)
+			{
+				Swap(p1->sno,p1->next->sno);
+				Swap(p1->name,p1->next->name);
+				se=p1->sex;p1->sex=p1->next->sex;p1->next->sex=se;
+				a=p1->age;p1->age=p1->next->age;p1->next->age=a;
+				c=p1->cscore;p1->cscore=p1->next->cscore;p1->next->cscore=c;
+				m=p1->mscore;p1->mscore=p1->next->mscore;p1->next->mscore=m;
+				e=p1->escore;p1->escore=p1->next->escore;p1->next->escore=e;
+				s=p1->sum;p1->sum=p1->next->sum;p1->next->sum=s;
+
+				
+            }		
+			p1 = p1->next;
+        }
+	   p2= p1;
+    }
+	 printf("通讯录已按照 联系人类型 排序成功,是否存盘?Y/N?\n");
+	 fflush(stdin);
+	 scanf("%c",&saveflag);		//确定要保存吗？
+	 if(saveflag=='y'||saveflag=='Y')	//当输入是的时候
+		 Save(head);			//调用保存函数
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void main()
+{
+	int c1,c2,c3,c4,c5;
+	int flag=0;
+	YH *head;
+	char  zhanghao[80]={0},mima[20]={0};
+zhu:zhucaidan();
+    scanf("%d",&c1);
+	switch(c1)
+	{
+	case 1:denglu(zhanghao,mima);//超级用户登录界面
+		   if( getzhanghaowenjian(zhanghao,mima,"超级用户"))
+		   {
+           chao:chaojicaidan();
+			   scanf("%d",&c2);
+			   switch(c2)
+			   {
+			   case 1:printf("\n现在可以调用显示已创建的用户功能！\n"); 
+				        head=duwenjian();
+						head=xianshi(head);
+						goto chao;
+						break;
+			   case 2:printf("\n现在可以调用添加用户功能！\n"); 
+				        head=duwenjian();
+						head=zengjia(head);
+						goto chao;
+						break;
+			   case 3:printf("\n现在可以调用删除用户功能！\n");
+				        head=duwenjian();
+						head=shanchu(head);
+						goto chao;
+						break;
+			   case 4:printf("\n现在可以调用修改用户功能！\n");getch();goto chao;break;
+			   case 0:goto zhu;
+			   }
+		   }
+		else
+		{
+			printf("\n\t超级用户帐号或者密码错误\n\n");
+			goto zhu;
+		}
+		   break;
+	case 2:denglu(zhanghao,mima);//管理员登录界面
+		   flag=getzhanghaowenjian(zhanghao,mima,"管理员");  //调用读账号文件子函数，如果返回1，说明账号、密码、类型都匹配
+	    	if(flag==1)
+		   {
+            guan:guanliyuancaidan();
+				scanf("%d",&c3);
+			   switch(c3)
+			   {
+			   case 1:printf("\n现在可以调用创建功能！\n");
+				      head=Create();
+					  goto guan;
+		              break;
+			   case 2:printf("\n现在可以调用显示功能！\n");
+				      head=Read();
+			          if(head!=NULL)
+			            View(head);
+					  goto guan;
+					  break;
+			   case 3:printf("\n现在可以调用增加功能！\n");
+				      head=Read();
+			          if(head!=NULL)
+				        Add(head);
+					  goto guan;
+			          break;
+			   case 4:printf("\n现在可以调用修改功能！\n");
+				      head=Read();
+			          if(head!=NULL)
+			        	Modify(head);
+					  goto guan;
+			          break;
+			   case 5:printf("\n现在可以调用删除功能！\n");
+				      head=Read();
+			          if(head!=NULL)
+			        	Del(head);
+					  goto guan;
+			          break;
+			   case 0:goto zhu;
+			   }
+		   }
+		  else
+		  {
+			  printf("\n\t管理员帐号或者密码错误\n\n");
+		      goto zhu;
+		  }
+		  break;
+	case 3:denglu(zhanghao,mima);//普通用户登录界面
+		   flag=getzhanghaowenjian(zhanghao,mima,"教师");  //调用读账号文件子函数，如果返回1，说明账号、密码、类型都匹配
+	    	if(flag==1)
+		   {
+            pu: putongcaidan();
+			   scanf("%d",&c4);
+			   switch(c4)
+			   {
+			   case 1:printf("\n现在可以调用显示功能！\n");getch();
+				      head=Read();
+			          if(head!=NULL)
+			            View(head); 
+					  goto pu;
+					  break;
+			   case 2:printf("\n现在可以调用查询功能！\n");getch();
+				      head=Read();
+			          if(head!=NULL)
+			        	Qur(head);
+					  goto pu;
+			          break;
+			   case 3:printf("\n现在可以调用修改功能！\n");getch();
+				      head=Read();
+		              if(head!=NULL)
+			         	Modify(head);
+					  goto pu;
+		        	  break;
+			   case 4:printf("\n现在可以调用排序功能！\n");getch();
+				      head=Read();
+			          if(head!=NULL)
+			        	Sort(head);
+					  goto pu;
+			          break;
+			   case 5:printf("\n现在可以调用统计功能！\n");getch();
+				      head=Read();
+		     	      if(head!=NULL)
+			        	statistics(head);
+					  goto pu;
+					  break;
+			   case 0:goto zhu;
+			   }
+		   }
+	       else
+		   {
+			   printf("\n\t教师帐号或者密码错误\n\n");
+		   	   goto zhu;
+		   }
+		  break;
+	case 4:denglu(zhanghao,mima);//普通用户登录界面
+		   flag=getzhanghaowenjian(zhanghao,mima,"学生");  //调用读账号文件子函数，如果返回1，说明账号、密码、类型都匹配
+	    	if(flag==1)
+		   {
+            xue: xueshengcaidan();
+			   scanf("%d",&c5);
+			   switch(c5)
+			   {
+			   case 1:printf("\n现在可以调用查找功能！\n");getch();
+				      head=Read();
+			          if(head!=NULL)
+			            View(head); 
+					  goto xue;
+					  break;
+
+			   case 0:goto zhu;
+			   }
+		   }
+	       else
+		   {
+			   printf("\n\t学生帐号或者密码错误\n\n");
+		   	   goto zhu;
+		   }
+		  break;
+	case 0:exit(0);
+	default:printf("\n选择错误！请重新选择！\n\n"); getch(); goto  zhu;
+	}
+}
